@@ -1,0 +1,66 @@
+<mat-card class="chat-card">
+<mat-card-header>
+  <mat-icon mat-card-avatar>smart_toy</mat-icon>
+  <mat-card-title>Ask Your Document</mat-card-title>
+  <!-- Add clear button -->
+  <button mat-icon-button
+          style="margin-left: auto"
+          (click)="clearChat()"
+          matTooltip="Clear chat">
+    <mat-icon>delete_sweep</mat-icon>
+  </button>
+</mat-card-header>
+
+  <mat-card-content>
+    <div class="messages-container">
+
+      <!-- Empty state -->
+      <div *ngIf="messages.length === 0" class="empty-state">
+        <mat-icon>forum</mat-icon>
+        <p>Ask anything about your uploaded document!</p>
+      </div>
+
+      <!-- Messages -->
+      <div *ngFor="let msg of messages"
+           [class]="'message ' + msg.role">
+        <div class="bubble">
+          <mat-icon class="msg-icon">
+            {{ msg.role === 'user' ? 'person' : 'smart_toy' }}
+          </mat-icon>
+          <div class="content">
+            <p>{{ msg.text }}</p>
+            <span class="time">{{ msg.time }}</span>
+          </div>
+        </div>
+        <div #messagesEnd></div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="message ai">
+        <div class="bubble">
+          <!-- <mat-icon class="msg-icon">smart_toy</mat-icon> -->
+          <div class="content thinking">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <mat-form-field appearance="outline" style="flex: 1">
+      <mat-label>Ask a question...</mat-label>
+      <input matInput
+             [(ngModel)]="question"
+             (keydown)="onKeyDown($event)"
+             [disabled]="loading"
+             placeholder="e.g. summarize document" />
+    </mat-form-field>
+    <button mat-fab color="primary"
+            [disabled]="!question.trim() || loading"
+            (click)="send()">
+      <mat-icon>send</mat-icon>
+    </button>
+  </mat-card-actions>
+</mat-card>
