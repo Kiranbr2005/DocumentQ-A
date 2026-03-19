@@ -2,47 +2,122 @@
   <mat-card-header>
     <mat-icon mat-card-avatar>upload_file</mat-icon>
     <mat-card-title>Upload Document</mat-card-title>
-    <mat-card-subtitle>Upload a PDF or TXT file to ask questions about it</mat-card-subtitle>
+    <mat-card-subtitle>
+      Upload a PDF, DOCX or TXT file to ask questions
+    </mat-card-subtitle>
   </mat-card-header>
 
   <mat-card-content>
+
     <!-- Drop Zone -->
-    <div class="drop-zone" (dragover)="onDragOver($event)" (drop)="onDrop($event)"
-      (click)="!uploading && fileInput.click()">
+    <div class="drop-zone"
+         (dragover)="onDragOver($event)"
+         (drop)="onDrop($event)"
+         (click)="!uploading && fileInput.click()">
       <mat-icon class="upload-icon">cloud_upload</mat-icon>
-      <p *ngIf="!selectedFile">Drag & drop a PDF here or click to browse</p>
+      <p *ngIf="!selectedFile">
+        Drag & drop a PDF / DOCX / TXT or click to browse
+      </p>
       <p *ngIf="selectedFile" class="file-name">
         <mat-icon>insert_drive_file</mat-icon>
         {{ selectedFile.name }}
       </p>
-      <input #fileInput type="file" accept=".pdf,.txt" (change)="onFileSelected($event)" hidden />
+      <input #fileInput type="file"
+             accept=".pdf,.txt,.docx"
+             (change)="onFileSelected($event)"
+             hidden />
     </div>
 
-    <mat-progress-bar *ngIf="uploading" mode="indeterminate" style="margin-top: 16px">
+    <mat-progress-bar *ngIf="uploading"
+                      mode="indeterminate"
+                      style="margin-top: 16px">
     </mat-progress-bar>
 
-    <!-- Success Message -->
-    @if(uploadDone){
-    <div class="success-box">
-      <mat-icon color="primary">check_circle</mat-icon>
-      <span>Document processed! Ready to answer questions.</span>
-    </div>
+    @if(uploadDone) {
+      <div class="success-box">
+        <mat-icon>check_circle</mat-icon>
+        <span>Document processed and ready!</span>
+      </div>
     }
+
+    <!-- Uploaded Documents List -->
+    @if(uploadedDocuments.length > 0) {
+      <div class="docs-section">
+        <div class="docs-title">
+          <mat-icon>folder_open</mat-icon>
+          <span>Your Uploaded Documents</span>
+          <span class="doc-count">
+            {{ uploadedDocuments.length }}
+          </span>
+        </div>
+
+        <div class="doc-list">
+          @for(doc of uploadedDocuments; track doc.documentId) {
+            <div class="doc-item"
+                 [class.active]="activeDocumentId === doc.documentId"
+                 (click)="setActiveDocument(
+                   doc.documentId, doc.documentName)">
+
+              <mat-icon class="doc-icon">
+                {{ doc.documentName?.endsWith('.pdf')
+                    ? 'picture_as_pdf'
+                    : doc.documentName?.endsWith('.docx')
+                    ? 'description' : 'article' }}
+              </mat-icon>
+
+              <div class="doc-info">
+                <div class="doc-name">
+                  {{ doc.documentName }}
+                </div>
+                <div class="doc-meta">
+                  {{ doc.chunkCount }} chunks
+                  @if(activeDocumentId === doc.documentId) {
+                    <span class="active-badge">Active</span>
+                  }
+                </div>
+              </div>
+
+              <button mat-icon-button color="warn"
+                      class="delete-btn"
+                      (click)="deleteDocument(
+                        doc.documentId, $event)"
+                      matTooltip="Delete document">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
   </mat-card-content>
 
   <mat-card-actions>
-  <button mat-raised-button color="primary"
-        [disabled]="!selectedFile || uploading || uploadDone"
-        (click)="upload()">
-  <mat-icon>upload</mat-icon>
-  {{ uploading ? 'Processing...' : 'Upload Document' }}
-</button>
-
-    @if(uploadDone){
-    <button mat-raised-button color="accent" (click)="goToChat()">
-      <mat-icon>chat</mat-icon>
-      Start Chatting
+    <button mat-raised-button color="primary"
+            [disabled]="!selectedFile || uploading || uploadDone"
+            (click)="upload()">
+      <mat-icon>upload</mat-icon>
+      {{ uploading ? 'Processing...' : 'Upload Document' }}
     </button>
-  }
+
+    @if(uploadDone) {
+      <button mat-raised-button color="accent"
+              (click)="goToChat()">
+        <mat-icon>chat</mat-icon>
+        Start Chatting
+      </button>
+      <button mat-stroked-button (click)="uploadAnother()">
+        <mat-icon>add</mat-icon>
+        Upload Another
+      </button>
+    }
+
+    @if(!uploadDone && uploadedDocuments.length > 0) {
+      <button mat-stroked-button color="accent"
+              (click)="goToChat()">
+        <mat-icon>chat</mat-icon>
+        Go to Chat
+      </button>
+    }
   </mat-card-actions>
 </mat-card>

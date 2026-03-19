@@ -16,8 +16,8 @@ public class DocumentChunk {
     private Long id;
 
     private String documentName;
-
     private String documentId;
+    private String sessionId;
 
     @Column(columnDefinition = "TEXT")
     private String content;

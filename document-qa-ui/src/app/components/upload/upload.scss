@@ -7,9 +7,7 @@
   transition: background 0.2s;
   margin-top: 16px;
 
-  &:hover {
-    background: #f3e5f5;
-  }
+  &:hover { background: #f3e5f5; }
 
   .upload-icon {
     font-size: 48px;
@@ -39,8 +37,99 @@
   color: #2e7d32;
 }
 
+// Documents list
+.docs-section {
+  margin-top: 24px;
+}
+
+.docs-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #424242;
+  margin-bottom: 12px;
+
+  .doc-count {
+    background: #3f51b5;
+    color: white;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 12px;
+  }
+}
+
+.doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.doc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f5f5f5;
+    border-color: #9c27b0;
+  }
+
+  &.active {
+    background: #f3e5f5;
+    border-color: #9c27b0;
+    border-width: 2px;
+  }
+
+  .doc-icon {
+    color: #9c27b0;
+  }
+
+  .doc-info {
+    flex: 1;
+
+    .doc-name {
+      font-weight: 500;
+      font-size: 14px;
+      color: #212121;
+    }
+
+    .doc-meta {
+      font-size: 12px;
+      color: #757575;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  .active-badge {
+    background: #9c27b0;
+    color: white;
+    border-radius: 8px;
+    padding: 1px 8px;
+    font-size: 11px;
+  }
+
+  .delete-btn {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  &:hover .delete-btn {
+    opacity: 1;
+  }
+}
+
 mat-card-actions {
   display: flex;
   gap: 12px;
   padding: 16px;
+  flex-wrap: wrap;
 }

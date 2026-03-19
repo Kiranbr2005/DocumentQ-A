@@ -2,11 +2,13 @@ package com.document_qa.service;
 
 import com.document_qa.repository.DocumentChunkRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class QAService {
@@ -14,32 +16,52 @@ public class QAService {
     private final ChatModel chatModel;
     private final DocumentChunkRepository chunkRepository;
 
-    public String answer(String question) {
+    public String answer(
+            String question,
+            String sessionId,
+            String documentId) {
 
-        // 1. Try full-text search first
-        List<String> chunks = chunkRepository.findByFullTextSearch(question, 5);
+        List<String> chunks;
 
-        // 2. If no results found → fallback to ALL chunks
-        if (chunks.isEmpty()) {
-            chunks = chunkRepository.findAllChunks(5);
+        // If specific document selected → search only that doc
+        if (documentId != null && !documentId.isBlank()) {
+            chunks = chunkRepository
+                    .findByDocumentAndSession(
+                            documentId, sessionId, question, 5);
+            log.info("Doc-scoped search: {} chunks for doc: {}",
+                    chunks.size(), documentId);
+
+            // Fallback within same document
+            if (chunks.isEmpty()) {
+                chunks = chunkRepository
+                        .findLatestByDocument(documentId, sessionId, 5);
+            }
+        } else {
+            // Search across all session docs
+            chunks = chunkRepository
+                    .findBySessionAndQuery(sessionId, question, 5);
+            if (chunks.isEmpty()) {
+                chunks = chunkRepository
+                        .findLatestBySession(sessionId, 5);
+            }
         }
 
-        // 3. If still empty → no document uploaded at all
         if (chunks.isEmpty()) {
             return "No documents found. Please upload a document first.";
         }
 
-        // 4. Build prompt and call Groq
         String context = String.join("\n\n", chunks);
         String prompt = """
-                You are a helpful assistant. Answer the question using only the context below.
-                If the answer is not in the context, say "I don't know based on the provided document."
+        You are a helpful assistant. Answer the question \
+        using only the context below.
+        If the answer is not in the context, say \
+        "I don't know based on the provided document."
 
-                Context:
-                %s
+        Context:
+        %s
 
-                Question: %s
-                """.formatted(context, question);
+        Question: %s
+        """.formatted(context, question);
 
         return chatModel.call(prompt);
     }

@@ -1,15 +1,32 @@
 <mat-card class="chat-card">
-<mat-card-header>
-  <mat-icon mat-card-avatar>smart_toy</mat-icon>
-  <mat-card-title>Ask Your Document</mat-card-title>
-  <!-- Add clear button -->
-  <button mat-icon-button
-          style="margin-left: auto"
-          (click)="clearChat()"
-          matTooltip="Clear chat">
-    <mat-icon>delete_sweep</mat-icon>
-  </button>
-</mat-card-header>
+  <mat-card-header>
+    <mat-icon mat-card-avatar>smart_toy</mat-icon>
+    <mat-card-title>Ask Your Document</mat-card-title>
+    <mat-card-subtitle>
+  Session: {{ docService.getSessionId() | slice:0:8 }}...
+  <span *ngIf="activeDocName" class="active-doc-badge">
+    <mat-icon style="font-size:14px;height:14px;width:14px">
+      description
+    </mat-icon>
+    {{ activeDocName }}
+  </span>
+</mat-card-subtitle>
+
+    <div style="margin-left: auto; display: flex; gap: 4px;">
+      <!-- Clear chat messages only -->
+      <button mat-icon-button
+              (click)="clearChat()"
+              matTooltip="Clear chat messages">
+        <mat-icon>delete_sweep</mat-icon>
+      </button>
+      <!-- Clear session + all documents -->
+      <button mat-icon-button color="warn"
+              (click)="clearSession()"
+              matTooltip="Clear all documents for this session">
+        <mat-icon>delete_forever</mat-icon>
+      </button>
+    </div>
+  </mat-card-header>
 
   <mat-card-content>
     <div class="messages-container">
@@ -32,18 +49,19 @@
             <span class="time">{{ msg.time }}</span>
           </div>
         </div>
-        <div #messagesEnd></div>
       </div>
 
       <!-- Loading -->
       <div *ngIf="loading" class="message ai">
         <div class="bubble">
-          <!-- <mat-icon class="msg-icon">smart_toy</mat-icon> -->
           <div class="content thinking">
             <span></span><span></span><span></span>
           </div>
         </div>
       </div>
+
+      <!-- Scroll anchor -->
+      <div #messagesEnd></div>
 
     </div>
   </mat-card-content>
